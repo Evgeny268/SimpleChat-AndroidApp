@@ -46,12 +46,10 @@ public class ExampleInstrumentedTest {
         } catch (URISyntaxException e) {
             e.printStackTrace();
         }
-        //InetWorker inetWorker = new InetWorker(uri);
         InetWorker inetWorker = new InetWorker(uri);
         inetWorker.connect();
         while (!inetWorker.isOpen()){
             ;
         }
-        inetWorker.send("test");
     }
 }

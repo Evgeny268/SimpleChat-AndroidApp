@@ -2,20 +2,23 @@ package com.simplechat;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.TextView;
 
+import internet.AuthWorker;
+
 public class LogRegActivity extends AppCompatActivity {
 
-    private String mode;
-    private TextView tvLogin;
-    private TextView tvPassword;
-    private TextView tvMode;
-    private Button btnRegLog;
-    private CheckBox cbAcceptLicense;
+    public String mode;
+    public TextView tvLogin;
+    public TextView tvPassword;
+    public TextView tvMode;
+    public Button btnRegLog;
+    public CheckBox cbAcceptLicense;
     //TODO Добавить проверку логина и пароля
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -42,5 +45,17 @@ public class LogRegActivity extends AppCompatActivity {
         }else {
             btnRegLog.setEnabled(false);
         }
+    }
+
+    public void onClickSign(View view) {
+        AuthWorker authWorker = new AuthWorker(this);
+        cbAcceptLicense.setEnabled(false);
+        btnRegLog.setEnabled(false);
+        authWorker.execute();
+    }
+
+    public void goFriendActivity(){
+        Intent intent = new Intent(LogRegActivity.this, FriendActivity.class);
+        startActivity(intent);
     }
 }

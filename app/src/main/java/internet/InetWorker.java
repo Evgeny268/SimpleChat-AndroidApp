@@ -22,7 +22,6 @@ public class InetWorker extends WebSocketClient {
     @Override
     public void onMessage(String message) {
         synchronized (lock) {
-            System.out.println(message);
             messages.add(message);
             newData = true;
             lock.notifyAll();
@@ -40,7 +39,7 @@ public class InetWorker extends WebSocketClient {
     }
 
     public static ArrayList<String> getData(){
-        ArrayList<String> data = new ArrayList<>();
+        ArrayList<String> data;
         synchronized (lock){
             data = new ArrayList<>(messages);
             messages.clear();
@@ -48,4 +47,5 @@ public class InetWorker extends WebSocketClient {
         }
         return data;
     }
+
 }

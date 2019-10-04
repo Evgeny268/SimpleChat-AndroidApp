@@ -6,6 +6,13 @@
     <string name="login">логин</string>
     <string name="password">пароль</string>
     <string name="accept_license">Я принимаю <u>условия лицензионного </u></string>
-    <string name="authorization">Авториация</string>
+    <string name="authorization">Авторизация</string>
     <string name="registration">Регистрация</string>
+    <string name="loginRequirement">Логин может включать в себя только латинские буквы, цифры и символ нижнего подчеркивания</string>
+    <string name="veryBigLogin">Длинна логина ограничена 255 символами</string>
+    <string name="veryBigPassword">Длинна пароля ограничена 255 символами</string>
+    <string name="serverNotRespond">Сервер не отвечает</string>
+    <string name="error">Ошибка</string>
+    <string name="userNotExist">Поьзователь с таким именем не существует</string>
+    <string name="wrongPassword">Неверный пароль</string>
 </resources>

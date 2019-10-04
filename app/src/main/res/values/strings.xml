@@ -8,4 +8,12 @@
     <string name="accept_license">I accept the <u>terms of the license agreement</u></string>
     <string name="authorization">Authorization</string>
     <string name="registration">Registration</string>
+    <string name="loginRequirement">Login can include only latin letters, numbers and underscore</string>
+    <string name="veryBigLogin">Login length is limited to 255 characters</string>
+    <string name="veryBigPassword">Password length is limited to 255 characters</string>
+    <string name="serverNotRespond">Server not respond</string>
+    <string name="error">Error</string>
+    <string name="userNotExist">User with this name not exist</string>
+    <string name="wrongPassword">Wrong password</string>
+
 </resources>

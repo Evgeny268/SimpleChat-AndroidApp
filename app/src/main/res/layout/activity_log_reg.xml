@@ -57,22 +57,22 @@
             android:layout_below="@id/textViewMode"
             android:layout_centerHorizontal="true"
             android:layout_gravity="center"
+            android:autofillHints="username"
             android:ems="10"
             android:hint="@string/login"
-            android:inputType="none"
-            android:autofillHints="username" />
+            android:inputType="textShortMessage|none" />
 
         <EditText
             android:id="@+id/editTextPassword"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_gravity="center"
-            android:layout_centerHorizontal="true"
             android:layout_below="@+id/editTextLogin"
+            android:layout_centerHorizontal="true"
+            android:layout_gravity="center"
+            android:autofillHints="password"
             android:ems="10"
             android:hint="@string/password"
-            android:inputType="textPassword"
-            android:autofillHints="password" />
+            android:inputType="textPassword" />
 
         <Button
             android:id="@+id/buttonRegLog"
@@ -82,7 +82,7 @@
             android:layout_centerHorizontal="true"
             android:layout_gravity="center"
             android:enabled="false"
-            android:text="Button"
+            android:onClick="onClickSign"
             android:textColor="@color/colorAccent" />
 
         <CheckBox
@@ -100,7 +100,7 @@
             android:layout_below="@id/buttonRegLog"
             android:layout_alignBaseline="@id/checkBoxLicense"
             android:layout_centerHorizontal="true"
-            android:layout_toRightOf="@+id/checkBoxLicense"
+            android:layout_toEndOf="@+id/checkBoxLicense"
             android:text="@string/accept_license" />
     </RelativeLayout>
 
