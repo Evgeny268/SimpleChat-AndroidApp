@@ -1,3 +1,11 @@
 <resources>
     <string name="app_name">SimpleChat</string>
+    <string name="sign_up">SIGN UP</string>
+    <string name="log_in">LOG IN</string>
+    <string name="textVersion">Version</string>
+    <string name="login">login</string>
+    <string name="password">password</string>
+    <string name="accept_license">I accept the <u>terms of the license agreement</u></string>
+    <string name="authorization">Authorization</string>
+    <string name="registration">Registration</string>
 </resources>

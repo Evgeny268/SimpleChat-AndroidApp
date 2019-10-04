@@ -39,7 +39,7 @@
         app:layout_constraintTop_toTopOf="@+id/guideline">
 
         <TextView
-            android:id="@+id/textView"
+            android:id="@+id/textViewMode"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_centerHorizontal="true"
@@ -54,12 +54,13 @@
             android:id="@+id/editTextLogin"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_gravity="center"
+            android:layout_below="@id/textViewMode"
             android:layout_centerHorizontal="true"
-            android:layout_below="@id/textView"
+            android:layout_gravity="center"
             android:ems="10"
             android:hint="@string/login"
-            android:inputType="textPersonName" />
+            android:inputType="none"
+            android:autofillHints="username" />
 
         <EditText
             android:id="@+id/editTextPassword"
@@ -70,15 +71,17 @@
             android:layout_below="@+id/editTextLogin"
             android:ems="10"
             android:hint="@string/password"
-            android:inputType="textPassword" />
+            android:inputType="textPassword"
+            android:autofillHints="password" />
 
         <Button
-            android:id="@+id/button"
+            android:id="@+id/buttonRegLog"
             android:layout_width="211dp"
             android:layout_height="wrap_content"
-            android:layout_gravity="center"
-            android:layout_centerHorizontal="true"
             android:layout_below="@+id/editTextPassword"
+            android:layout_centerHorizontal="true"
+            android:layout_gravity="center"
+            android:enabled="false"
             android:text="Button"
             android:textColor="@color/colorAccent" />
 
@@ -86,18 +89,19 @@
             android:id="@+id/checkBoxLicense"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_below="@id/buttonRegLog"
             android:layout_alignParentBottom="true"
-            android:layout_below="@id/button" />
+            android:onClick="onlickAcceptLicense" />
 
         <TextView
             android:id="@+id/textViewAcceptLicense"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_below="@id/button"
+            android:layout_below="@id/buttonRegLog"
             android:layout_alignBaseline="@id/checkBoxLicense"
-            android:layout_toRightOf="@+id/checkBoxLicense"
             android:layout_centerHorizontal="true"
-            tools:text="Я принимаю условия лицензионного соглашения" />
+            android:layout_toRightOf="@+id/checkBoxLicense"
+            android:text="@string/accept_license" />
     </RelativeLayout>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

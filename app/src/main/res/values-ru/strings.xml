@@ -1,3 +1,11 @@
 <resources>
     <string name="app_name">SimpleChat</string>
+    <string name="sign_up">РЕГИСТРАЦИЯ</string>
+    <string name="log_in">ВХОД</string>
+    <string name="textVersion">Версия</string>
+    <string name="login">логин</string>
+    <string name="password">пароль</string>
+    <string name="accept_license">Я принимаю <u>условия лицензионного </u></string>
+    <string name="authorization">Авториация</string>
+    <string name="registration">Регистрация</string>
 </resources>
