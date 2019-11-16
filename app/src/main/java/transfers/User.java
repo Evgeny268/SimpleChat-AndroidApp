@@ -1,16 +1,23 @@
 package transfers;
 
-import com.fasterxml.jackson.annotation.JsonAutoDetect;
+import com.fasterxml.jackson.annotation.JsonTypeInfo;
 
+import java.io.Serializable;
 import java.util.Objects;
 
-@JsonAutoDetect
-public class User {
+@JsonTypeInfo(use = JsonTypeInfo.Id.MINIMAL_CLASS, property ="type")
+public class User implements Serializable {
     public int iduser = 0;
     public String login;
     public String password;
 
     public User() {
+    }
+
+    public User(User user){
+        this.iduser = user.iduser;
+        this.login = user.login;
+        this.password = user.password;
     }
 
     public User(int iduser, String login) {
