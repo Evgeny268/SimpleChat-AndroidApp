@@ -6,7 +6,7 @@ import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import java.util.ArrayList;
 
 @JsonTypeInfo(use = JsonTypeInfo.Id.MINIMAL_CLASS, property ="type")
-public class Friends {
+public class Friends implements Transfers{
     @JsonDeserialize(as = ArrayList.class, contentAs = User.class)
     public ArrayList<User> friends = new ArrayList<>();
 

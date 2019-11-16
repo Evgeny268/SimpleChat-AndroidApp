@@ -6,7 +6,7 @@ import java.io.Serializable;
 import java.util.Objects;
 
 @JsonTypeInfo(use = JsonTypeInfo.Id.MINIMAL_CLASS, property ="type")
-public class User implements Serializable {
+public class User implements Serializable, Transfers{
     public int iduser = 0;
     public String login;
     public String password;

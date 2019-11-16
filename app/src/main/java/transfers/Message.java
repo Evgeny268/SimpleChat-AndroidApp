@@ -5,7 +5,7 @@ import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import java.util.Date;
 
 @JsonTypeInfo(use = JsonTypeInfo.Id.MINIMAL_CLASS, property ="type")
-public class Message {
+public class Message implements Transfers{
 
     public int iduser = 0;
     public int idMessage;
