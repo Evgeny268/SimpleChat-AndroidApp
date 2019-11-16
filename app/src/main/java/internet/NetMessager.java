@@ -1,66 +1,79 @@
 package internet;
 
+import android.util.Log;
+
+import com.simplechat.AppUtils;
+
 import java.util.ArrayList;
 
-public class NetMessager {
+public class NetMessager implements InetWorker.MessageNotify {
     private InetWorker inetWorker;
-    private NewMessagesListener newMessagesListener;
-    private Thread mWorkerThread;
-    private String sendMessage = "";
-    private boolean waitMessageIncome;
+    private NewMessagesListener newMessagesListener = null;
+    private boolean waitMessageIncome = false;
+    private static Object waitLock = new Object();
 
     public NetMessager(InetWorker inetWorker, NewMessagesListener newMessagesListener) {
         this.inetWorker = inetWorker;
         this.newMessagesListener = newMessagesListener;
-        mWorkerThread = new Thread(new MWorker());
-        mWorkerThread.start();
+        AppUtils.getInetWorker().setMessageNotify(this);
     }
 
-    public void sendMessage(String message, boolean waitAnswer){
+    @Override
+    public void messageIncome() {
+        synchronized (waitLock){
+            waitMessageIncome = false;
+            waitLock.notify();
+        }
+        if (newMessagesListener!=null) {
+            newMessagesListener.newMessage(InetWorker.getData());
+        }
+    }
+
+    public void sendMessage(String message){
         try{
             inetWorker.send(message);
         }catch (Exception e){
             e.printStackTrace();
+            ArrayList<String> list = new ArrayList<>();
+            list.add("ERROR");
+            if (newMessagesListener!=null) {
+                newMessagesListener.newMessage(list);
+            }
         }
     }
 
+    public void stop(){
+        newMessagesListener = null;
+        inetWorker = null;
+    }
+
+
     public void sendMessage(String message, int waitAnswerTime){
-        waitMessageIncome = false;
+        if (waitMessageIncome){
+            Log.d("Inet","НЕ ОТПРАВЛЯЕМ СООБЩЕНИЕ");
+            return;
+        }
+        Log.d("Inet","ОТПРАВЛЯЕМ СООБЩЕНИЕ");
+        waitMessageIncome = true;
         Thread thread = new Thread(new Mwaiter(waitAnswerTime));
         thread.start();
         try{
             inetWorker.send(message);
         }catch (Exception e){
             e.printStackTrace();
+            ArrayList<String> list = new ArrayList<>();
+            list.add("ERROR");
+            if (newMessagesListener!=null) {
+                newMessagesListener.newMessage(list);
+            }
         }
     }
 
-    public void stop(){
-        mWorkerThread.interrupt();
-        sendMessage = "";
-    }
 
     public interface NewMessagesListener{
         void newMessage(ArrayList<String> messages);
     }
 
-    private class MWorker implements Runnable{
-
-        @Override
-        public void run() {
-            while (!Thread.currentThread().isInterrupted()){
-                synchronized (InetWorker.lock){
-                    try {
-                        InetWorker.lock.wait();
-                        waitMessageIncome = true;
-                        newMessagesListener.newMessage(InetWorker.getData());
-                    } catch (InterruptedException e) {
-                        e.printStackTrace();
-                    }
-                }
-            }
-        }
-    }
 
     private class  Mwaiter implements Runnable{
 
@@ -73,17 +86,26 @@ public class NetMessager {
         @Override
         public void run() {
             try{
-                Thread.sleep(sleepTime);
-                if (waitMessageIncome){
+                synchronized (waitLock){
+                    waitLock.wait(sleepTime);
+                    Log.d("Inet","WAIT LOCK");
+                }
+                if (!waitMessageIncome){
                     return;
                 }else {
                     ArrayList<String> list = new ArrayList<>();
                     list.add("TIMEOUT");
-                    newMessagesListener.newMessage(list);
+                    Log.d("Inet","TIMEOUT");
+                    waitMessageIncome = false;
+                    if (newMessagesListener!=null) {
+                        newMessagesListener.newMessage(list);
+                    }
                 }
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }
+            waitMessageIncome = false;
+            Log.d("Inet","waitMessageIncome = false");
         }
     }
 }

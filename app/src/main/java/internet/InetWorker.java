@@ -1,6 +1,8 @@
 package internet;
 
 
+import android.util.Log;
+
 import org.java_websocket.client.WebSocketClient;
 import org.java_websocket.handshake.ServerHandshake;
 
@@ -11,6 +13,7 @@ public class InetWorker extends WebSocketClient {
     public static Object lock = new Object();
     public static boolean newData = false;
     public static ArrayList<String> messages = new ArrayList<>();
+    private MessageNotify messageNotify = null;
     public InetWorker(URI serverUri) {
         super(serverUri);
     }
@@ -21,12 +24,22 @@ public class InetWorker extends WebSocketClient {
 
     @Override
     public void onMessage(String message) {
+        Log.d("Inet","ОЖИДАНИЕ ОТКРЫТИЯ ОБЪЕКТА");
         synchronized (lock) {
+            Log.d("Inet","ОТКРЫТИЕ ОБЪЕКТА");
             System.out.println(message);
             messages.add(message);
+            Log.d("Inet","ДОБАВЛЕНО НОВОЕ ПИСЬМО");
             newData = true;
             lock.notifyAll();
+            if (messageNotify != null){
+                messageNotify.messageIncome();
+            }
         }
+    }
+
+    public void setMessageNotify(MessageNotify messageNotify) {
+        this.messageNotify = messageNotify;
     }
 
     @Override
@@ -47,6 +60,10 @@ public class InetWorker extends WebSocketClient {
             newData = false;
         }
         return data;
+    }
+
+    public interface MessageNotify{
+        void messageIncome();
     }
 
 }
