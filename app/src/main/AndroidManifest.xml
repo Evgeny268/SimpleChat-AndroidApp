@@ -11,9 +11,16 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
-        <activity android:name=".FriendActivity"></activity>
-        <activity android:name=".LogRegActivity" />
-        <activity android:name=".MainActivity">
+        <activity android:name=".InputRequestActivity"></activity>
+        <activity android:name=".AddFriendActivity" />
+        <activity android:name=".DialogActivity" />
+        <activity android:name=".FriendActivity" />
+        <activity
+            android:name=".LogRegActivity"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".MainActivity"
+            android:screenOrientation="portrait">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 

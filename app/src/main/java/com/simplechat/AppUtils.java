@@ -1,5 +1,7 @@
 package com.simplechat;
 
+import android.util.Log;
+
 import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -10,10 +12,14 @@ import internet.InetWorker;
 public class AppUtils {
     private static InetWorker inetWorker;
     private static boolean alreadyConnect = false;
+    private static String login = null;
+    private static String password = null;
     public static boolean startConnect(){
         URL url = null;
         try {
             url = new URL("http://192.168.1.35:4444");
+            //url = new URL("http://127.0.0.1:4444");
+            //url = new URL("http://ecombine.ddns.net:4444");
         } catch (MalformedURLException e) {
             e.printStackTrace();
             return false;
@@ -55,7 +61,9 @@ public class AppUtils {
         if (!alreadyConnect) return;
         try {
             inetWorker.send(text);
+            Log.d("SCinet","Выслал данные");
         }catch (Exception e){
+            Log.d("SCinet","Что-то пошло не так");
             if (startConnect()){
                 alreadyConnect = true;
                 try {
@@ -65,5 +73,21 @@ public class AppUtils {
                 }
             }
         }
+    }
+
+    public static String getLogin() {
+        return login;
+    }
+
+    public static void setLogin(String login) {
+        AppUtils.login = login;
+    }
+
+    public static String getPassword() {
+        return password;
+    }
+
+    public static void setPassword(String password) {
+        AppUtils.password = password;
     }
 }

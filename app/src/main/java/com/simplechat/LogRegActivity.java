@@ -19,6 +19,7 @@ public class LogRegActivity extends AppCompatActivity {
     public TextView tvMode;
     public Button btnRegLog;
     public CheckBox cbAcceptLicense;
+    private static boolean lock = false;
     //TODO Добавить проверку логина и пароля
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -49,13 +50,37 @@ public class LogRegActivity extends AppCompatActivity {
 
     public void onClickSign(View view) {
         AuthWorker authWorker = new AuthWorker(this);
-        cbAcceptLicense.setEnabled(false);
-        btnRegLog.setEnabled(false);
+        lockAll();
         authWorker.execute();
     }
 
     public void goFriendActivity(){
         Intent intent = new Intent(LogRegActivity.this, FriendActivity.class);
         startActivity(intent);
+    }
+
+    public void lockAll(){
+        lock = true;
+        btnRegLog.setEnabled(false);
+        cbAcceptLicense.setEnabled(false);
+        tvLogin.setEnabled(false);
+        tvPassword.setEnabled(false);
+    }
+
+    public void unlockAll(){
+        lock = false;
+        if (cbAcceptLicense.isChecked()){
+            btnRegLog.setEnabled(true);
+        }
+        cbAcceptLicense.setEnabled(true);
+        tvLogin.setEnabled(true);
+        tvPassword.setEnabled(true);
+    }
+
+    @Override
+    public void onBackPressed() {
+        if (!lock) {
+            super.onBackPressed();
+        }
     }
 }

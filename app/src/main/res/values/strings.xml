@@ -14,6 +14,17 @@
     <string name="serverNotRespond">Server not respond</string>
     <string name="error">Error</string>
     <string name="userNotExist">User with this name not exist</string>
+    <string name="userAlreadyExist">User with this name already exist</string>
     <string name="wrongPassword">Wrong password</string>
+    <string name="badLogin">Login does not meet the requirements</string>
+    <string name="badPassword">Password does not meet the requirements</string>
+    <string name="deleteFriend">Delete friend</string>
+    <string name="enterFriendName">Enter friend\'s nickname</string>
+    <string name="add">Add</string>
+    <string name="applicationSent">Request send</string>
+    <string name="accept">Accept</string>
+    <string name="reject">Reject</string>
+    <string name="friendRequest">Friend request</string>
+    <string name="friends">Friends</string>
 
 </resources>

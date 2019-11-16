@@ -81,9 +81,11 @@
             android:layout_below="@+id/editTextPassword"
             android:layout_centerHorizontal="true"
             android:layout_gravity="center"
+            android:background="@color/colorAccent"
             android:enabled="false"
             android:onClick="onClickSign"
-            android:textColor="@color/colorAccent" />
+            android:textColor="@color/colorPrimaryDark"
+            tools:text="ENTER" />
 
         <CheckBox
             android:id="@+id/checkBoxLicense"

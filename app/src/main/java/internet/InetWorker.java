@@ -22,6 +22,7 @@ public class InetWorker extends WebSocketClient {
     @Override
     public void onMessage(String message) {
         synchronized (lock) {
+            System.out.println(message);
             messages.add(message);
             newData = true;
             lock.notifyAll();

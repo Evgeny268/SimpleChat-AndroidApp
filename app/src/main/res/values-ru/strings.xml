@@ -5,7 +5,7 @@
     <string name="textVersion">Версия</string>
     <string name="login">логин</string>
     <string name="password">пароль</string>
-    <string name="accept_license">Я принимаю <u>условия лицензионного </u></string>
+    <string name="accept_license">Я принимаю <u>условия лицензионного соглашения</u></string>
     <string name="authorization">Авторизация</string>
     <string name="registration">Регистрация</string>
     <string name="loginRequirement">Логин может включать в себя только латинские буквы, цифры и символ нижнего подчеркивания</string>
@@ -14,5 +14,16 @@
     <string name="serverNotRespond">Сервер не отвечает</string>
     <string name="error">Ошибка</string>
     <string name="userNotExist">Поьзователь с таким именем не существует</string>
+    <string name="userAlreadyExist">Пользователь с таким именем уже существует</string>
     <string name="wrongPassword">Неверный пароль</string>
+    <string name="badLogin">Логин не соответстует требованиям</string>
+    <string name="badPassword">Пароль не соответствует требованиям</string>
+    <string name="deleteFriend">Удалить друга</string>
+    <string name="enterFriendName">Введите никнейм друга</string>
+    <string name="add">Добавить</string>
+    <string name="applicationSent">Заявка не найдена</string>
+    <string name="accept">Принять</string>
+    <string name="reject">Отклонить</string>
+    <string name="friendRequest">Заявки в друзья</string>
+    <string name="friends">Друзья</string>
 </resources>
