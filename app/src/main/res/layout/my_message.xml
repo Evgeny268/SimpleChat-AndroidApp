@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:orientation="horizontal"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_weight="match_parent"
+    android:padding="10dp"
+    android:paddingEnd="10dp"
+    android:gravity="end"
+    android:paddingStart="15dp"
+    android:clipToPadding="false">
+
+    <EditText
+        android:id="@+id/message_time"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="bottom|start"
+        android:layout_marginStart="100dp"
+        android:background="@android:color/transparent"
+        android:importantForAutofill="no"
+        android:textColor="@color/colorPrimary"
+        android:inputType="none"
+        android:textSize="14sp"
+        tools:text="15:32">
+    </EditText>
+
+    <EditText
+        android:id="@+id/message_body"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="10dp"
+        android:background="@drawable/my_message"
+        android:elevation="2dp"
+        android:gravity="end"
+        android:importantForAutofill="no"
+        android:minWidth="100dp"
+        android:padding="10dp"
+        android:textColor="#E6E7E7"
+        android:textSize="18sp"
+        android:inputType="none"
+        tools:text="3kjngkjvfnjvklvjbndflkg vbnlkdf nbvglkdfn vbglkd fvnkfjbn vkdflgjnbvklfjd nblkdfgjbn vdkfl gvbnkdfgnvbdlkf nvbfglkvjn bdfg">
+    </EditText>
+
+
+</LinearLayout>
