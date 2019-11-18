@@ -24,6 +24,10 @@ public class InFriendsAdapter extends RecyclerView.Adapter<InFriendsAdapter.InFr
         this.mRequestInControl = requestInControl;
     }
 
+    public void setRequests(ArrayList<User> requests) {
+        this.requests = requests;
+    }
+
     @NonNull
     @Override
     public InFriendHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {

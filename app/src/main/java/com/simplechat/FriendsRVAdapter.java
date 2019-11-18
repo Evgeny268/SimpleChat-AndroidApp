@@ -31,6 +31,10 @@ public class FriendsRVAdapter  extends RecyclerView.Adapter<FriendsRVAdapter.Fri
         return friends.get(position);
     }
 
+    public void setFriends(ArrayList<User> friends) {
+        this.friends = friends;
+    }
+
     @NonNull
     @Override
     public FriendViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {

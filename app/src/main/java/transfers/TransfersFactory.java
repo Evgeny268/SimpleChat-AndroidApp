@@ -32,9 +32,9 @@ public class TransfersFactory {
                     e.printStackTrace();
                     return null;
                 }
-            }else if (node.get("type").asText().equals("."+Message.class.getSimpleName())){
+            }else if (node.get("type").asText().equals("."+ Message.class.getSimpleName())){
                 try {
-                    Message message = (Message)objectMapper.readValue(data,Message.class);
+                    Message message = (Message)objectMapper.readValue(data, Message.class);
                     return message;
                 } catch (IOException e) {
                     e.printStackTrace();

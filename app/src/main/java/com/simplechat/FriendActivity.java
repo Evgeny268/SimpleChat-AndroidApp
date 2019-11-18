@@ -9,6 +9,9 @@ import androidx.recyclerview.widget.RecyclerView;
 import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Looper;
+import android.os.Message;
 import android.view.ContextMenu;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -27,16 +30,21 @@ import java.io.StringWriter;
 import java.util.ArrayList;
 
 import internet.InetWorker;
+import internet.NetMessager;
 import transfers.Friends;
 import transfers.TransferRequestAnswer;
+import transfers.Transfers;
+import transfers.TransfersFactory;
 import transfers.TypeRequestAnswer;
 import transfers.User;
 
-public class FriendActivity extends AppCompatActivity implements FriendsRVAdapter.OnFriendsListListener, FriendsRVAdapter.OnFriendListLClickListener {
+public class FriendActivity extends AppCompatActivity implements FriendsRVAdapter.OnFriendsListListener, FriendsRVAdapter.OnFriendListLClickListener, NetMessager.NewMessagesListener, TypeRequestAnswer {
 
     private static ArrayList<User> friends = new ArrayList<>();
     private RecyclerView friendList;
     private FriendsRVAdapter friendsRVAdapter;
+    private NetMessager netMessager;
+    private Handler mHandler;
     LinearLayoutManager layoutManager;
     DividerItemDecoration dividerItemDecoration;
     @Override
@@ -51,14 +59,86 @@ public class FriendActivity extends AppCompatActivity implements FriendsRVAdapte
         friendList.setHasFixedSize(false);
         dividerItemDecoration = new DividerItemDecoration(friendList.getContext(),layoutManager.getOrientation());
         friendList.addItemDecoration(dividerItemDecoration);
-        FriendInetWorker fWorker = new FriendInetWorker();
-        fWorker.execute();
+        friendsRVAdapter = new FriendsRVAdapter(friends,FriendActivity.this,FriendActivity.this);
+        friendList.setAdapter(friendsRVAdapter);
+        mHandler = new Handler(Looper.getMainLooper()){
+            @Override
+            public void handleMessage(Message msg) {
+                if (msg.what==0){
+                    Toast.makeText(FriendActivity.this, getString(R.string.error), Toast.LENGTH_SHORT).show();
+                }else if (msg.what==1){
+                    friendsRVAdapter.setFriends(friends);
+                    friendsRVAdapter.notifyDataSetChanged();
+                }else if (msg.what == 2){
+                    TransferRequestAnswer out = new TransferRequestAnswer(GET_FRIENDS,AppUtils.getLogin(),AppUtils.getPassword());
+                    ObjectMapper objectMapper = new ObjectMapper();
+                    StringWriter stringWriter = new StringWriter();
+                    try {
+                        objectMapper.writeValue(stringWriter,out);
+                        netMessager.sendMessage(stringWriter.toString());
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
+                }
+            }
+        };
     }
 
     @Override
     protected void onStart() {
         super.onStart();
-        //TODO обновить данные с сервера
+        netMessager = new NetMessager(AppUtils.getInetWorker(),this);
+        TransferRequestAnswer out = new TransferRequestAnswer(GET_FRIENDS,AppUtils.getLogin(),AppUtils.getPassword());
+        ObjectMapper objectMapper = new ObjectMapper();
+        StringWriter stringWriter = new StringWriter();
+        try {
+            objectMapper.writeValue(stringWriter,out);
+            netMessager.sendMessage(stringWriter.toString());
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+        netMessager.stop();
+    }
+
+    @Override
+    public void newMessage(ArrayList<String> messages) {
+        Message message = mHandler.obtainMessage(0);
+        if (messages.size()>0){
+            String data = messages.get(0);
+            if (data.equals(ERROR)){
+                message.sendToTarget();
+                return;
+            }
+            Transfers transfers = TransfersFactory.createTransfers(data);
+            if (transfers!=null){
+                if (transfers instanceof Friends){
+                   Friends inputFriends = (Friends) transfers;
+                   friends = inputFriends.friends;
+                   message = mHandler.obtainMessage(1);
+                   message.sendToTarget();
+                }else if (transfers instanceof TransferRequestAnswer){
+                    TransferRequestAnswer tra = (TransferRequestAnswer) transfers;
+                    if (tra.request.equals(ERROR)){
+                        message = mHandler.obtainMessage(0);
+                        message.sendToTarget();
+                    }else if (tra.request.equals(REMOVE_FRIEND)){
+                        message = mHandler.obtainMessage(2);
+                        message.sendToTarget();
+                    }else if (tra.request.equals(REQUEST_SENT)){
+                        message = mHandler.obtainMessage(2);
+                        message.sendToTarget();
+                    }
+                }
+            }
+        }else {
+            message = mHandler.obtainMessage(0);
+            message.sendToTarget();
+        }
     }
 
     public FriendActivity getFriendActivity(){
@@ -75,15 +155,29 @@ public class FriendActivity extends AppCompatActivity implements FriendsRVAdapte
 
     @Override
     public void onFriendClickLong(int position, View v) {
-        showPopupMenu(v);
+        showPopupMenu(v, position);
     }
 
-    private void showPopupMenu(View v){
+    private void showPopupMenu(View v, final int position){
         PopupMenu popupMenu = new PopupMenu(this,v);
         popupMenu.inflate(R.menu.friendlist_menu);
         popupMenu.setOnMenuItemClickListener(new PopupMenu.OnMenuItemClickListener() {
             @Override
             public boolean onMenuItemClick(MenuItem item) {
+                switch (item.getItemId()){
+                    case R.id.deleteFriend:
+                        User deleteFriend = friends.get(position);
+                        TransferRequestAnswer out = new TransferRequestAnswer(REMOVE_FRIEND,AppUtils.getLogin(),AppUtils.getPassword(),deleteFriend.login);
+                        ObjectMapper objectMapper = new ObjectMapper();
+                        StringWriter stringWriter = new StringWriter();
+                        try {
+                            objectMapper.writeValue(stringWriter,out);
+                            netMessager.sendMessage(stringWriter.toString());
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                        }
+                        return true;
+                }
                 return false;
             }
         });
@@ -123,89 +217,6 @@ public class FriendActivity extends AppCompatActivity implements FriendsRVAdapte
                 return true;
             default:
                 return super.onOptionsItemSelected(item);
-        }
-    }
-
-    private class FriendInetWorker extends AsyncTask<Void,String,Void> implements TypeRequestAnswer {
-
-        @Override
-        protected Void doInBackground(Void... voids) {
-            if (!AppUtils.isAlreadyConnect()){
-                if (!AppUtils.startConnect()){
-                    publishProgress(getResources().getString(R.string.serverNotRespond));
-                    return null;
-                }
-            }
-
-            TransferRequestAnswer out = new TransferRequestAnswer(GET_FRIENDS,AppUtils.getLogin(),AppUtils.getPassword());
-            ObjectMapper objectMapper = new ObjectMapper();
-            StringWriter stringWriter = new StringWriter();
-
-            try {
-                objectMapper.writeValue(stringWriter,out);
-                AppUtils.send(stringWriter.toString());
-            } catch (Exception e) {
-                publishProgress(getResources().getString(R.string.error));
-                return null;
-            }
-
-            ArrayList<String> data;
-            synchronized (InetWorker.lock){
-                if (!InetWorker.newData){
-                    try {
-                        InetWorker.lock.wait(5000);
-                    } catch (InterruptedException e) {
-                        publishProgress(getResources().getString(R.string.error));
-                        return null;
-                    }
-                }
-            }
-            data = InetWorker.getData();
-
-            if (data.size()==0){
-                publishProgress(getResources().getString(R.string.error));
-                return null;
-            }
-            ObjectNode node = null;
-            try {
-                node = new ObjectMapper().readValue(data.get(data.size()-1),ObjectNode.class);
-            } catch (IOException e) {
-                publishProgress(getResources().getString(R.string.error));
-                return null;
-            }
-
-            if (node.has("type")){
-                if (node.get("type").asText().equals("."+ Friends.class.getSimpleName())){
-                    try {
-                        Friends friendIn = (Friends)objectMapper.readValue(data.get(data.size()-1),Friends.class);
-                        friends = friendIn.friends;
-                    } catch (IOException e) {
-                        e.printStackTrace();
-                        publishProgress(getResources().getString(R.string.error));
-                        return null;
-                    }
-                }else {
-                    publishProgress(getResources().getString(R.string.error));
-                    return null;
-                }
-            }else {
-                publishProgress(getResources().getString(R.string.error));
-                return null;
-            }
-            return null;
-        }
-
-        @Override
-        protected void onProgressUpdate(String... values) {
-            for (int i = 0; i < values.length; i++){
-                Toast.makeText(getApplicationContext(), values[i], Toast.LENGTH_LONG).show();
-            }
-        }
-
-        @Override
-        protected void onPostExecute(Void aVoid) {
-            friendsRVAdapter = new FriendsRVAdapter(friends,getFriendActivity(),getFriendActivity());
-            friendList.setAdapter(friendsRVAdapter);
         }
     }
 }

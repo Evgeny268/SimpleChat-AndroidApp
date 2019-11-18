@@ -7,6 +7,9 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Looper;
+import android.os.Message;
 import android.widget.Toast;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -17,18 +20,23 @@ import java.io.StringWriter;
 import java.util.ArrayList;
 
 import internet.InetWorker;
+import internet.NetMessager;
 import transfers.RequestIn;
 import transfers.TransferRequestAnswer;
+import transfers.Transfers;
+import transfers.TransfersFactory;
 import transfers.TypeRequestAnswer;
 import transfers.User;
 
-public class InputRequestActivity extends AppCompatActivity implements InFriendsAdapter.RequestInControl {
+public class InputRequestActivity extends AppCompatActivity implements InFriendsAdapter.RequestInControl, NetMessager.NewMessagesListener, TypeRequestAnswer {
 
     private static ArrayList<User> requests = new ArrayList<>();
     private RecyclerView requestList;
     private InFriendsAdapter inFriendsAdapter;
     private LinearLayoutManager layoutManager;
     private DividerItemDecoration dividerItemDecoration;
+    private NetMessager netMessager;
+    private Handler mHandler;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -40,8 +48,83 @@ public class InputRequestActivity extends AppCompatActivity implements InFriends
         requestList.setHasFixedSize(false);
         dividerItemDecoration = new DividerItemDecoration(requestList.getContext(),layoutManager.getOrientation());
         requestList.addItemDecoration(dividerItemDecoration);
-        RequestInWorker requestInWorker = new RequestInWorker();
-        requestInWorker.execute();
+        inFriendsAdapter = new InFriendsAdapter(requests,getInputRequestActivity());
+        requestList.setAdapter(inFriendsAdapter);
+        mHandler = new Handler(Looper.getMainLooper()){
+            @Override
+            public void handleMessage(Message msg) {
+                if (msg.what==0){
+                    Toast.makeText(InputRequestActivity.this, getString(R.string.error), Toast.LENGTH_SHORT).show();
+                }else if (msg.what==1){
+                    inFriendsAdapter.setRequests(requests);
+                    inFriendsAdapter.notifyDataSetChanged();
+                }else if (msg.what==2){
+                    TransferRequestAnswer out = new TransferRequestAnswer(GET_REQUEST_IN,AppUtils.getLogin(),AppUtils.getPassword());
+                    ObjectMapper objectMapper = new ObjectMapper();
+                    StringWriter stringWriter = new StringWriter();
+                    try {
+                        objectMapper.writeValue(stringWriter,out);
+                        netMessager.sendMessage(stringWriter.toString());
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                }
+            }
+        };
+    }
+
+    @Override
+    protected void onStart() {
+        super.onStart();
+        netMessager = new NetMessager(AppUtils.getInetWorker(), this);
+        TransferRequestAnswer out = new TransferRequestAnswer(GET_REQUEST_IN,AppUtils.getLogin(),AppUtils.getPassword());
+        ObjectMapper objectMapper = new ObjectMapper();
+        StringWriter stringWriter = new StringWriter();
+        try {
+            objectMapper.writeValue(stringWriter,out);
+            netMessager.sendMessage(stringWriter.toString());
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+        netMessager.stop();
+    }
+
+    @Override
+    public void newMessage(ArrayList<String> messages) {
+        Message message = mHandler.obtainMessage(0);
+        if (messages.size()>0){
+            String data = messages.get(0);
+            Transfers transfers = TransfersFactory.createTransfers(data);
+            if (transfers !=null){
+                if (transfers instanceof RequestIn){
+                    RequestIn requestIn = (RequestIn) transfers;
+                    requests = requestIn.users;
+                    message = mHandler.obtainMessage(1);
+                    message.sendToTarget();
+                }else if (transfers instanceof TransferRequestAnswer){
+                    TransferRequestAnswer transferRequestAnswer = (TransferRequestAnswer) transfers;
+                    if (transferRequestAnswer.request.equals(REQUEST_SENT)){
+                        message = mHandler.obtainMessage(2);
+                        message.sendToTarget();
+                    }else if (transferRequestAnswer.request.equals(REMOVE_FRIEND)){
+                        message = mHandler.obtainMessage(2);
+                        message.sendToTarget();
+                    }else if (transferRequestAnswer.request.equals(ERROR)){
+                        message = mHandler.obtainMessage(0);
+                        message.sendToTarget();
+                    }
+                }
+            }else {
+                message.sendToTarget();
+            }
+        }else {
+            message.sendToTarget();
+        }
     }
 
     public InputRequestActivity getInputRequestActivity(){
@@ -49,12 +132,28 @@ public class InputRequestActivity extends AppCompatActivity implements InFriends
     }
     @Override
     public void onClickAccept(User user) {
-        Toast.makeText(this, "Кнопочка принять "+user.login, Toast.LENGTH_SHORT).show();
+        TransferRequestAnswer out = new TransferRequestAnswer(ADD_FRIEND,AppUtils.getLogin(), AppUtils.getPassword(),user.login);
+        ObjectMapper objectMapper = new ObjectMapper();
+        StringWriter stringWriter = new StringWriter();
+        try {
+            objectMapper.writeValue(stringWriter,out);
+            netMessager.sendMessage(stringWriter.toString());
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
     @Override
     public void onClickReject(User user) {
-        Toast.makeText(this, "Кнопочка отказать "+user.login, Toast.LENGTH_SHORT).show();
+        TransferRequestAnswer out = new TransferRequestAnswer(REMOVE_FRIEND,AppUtils.getLogin(), AppUtils.getPassword(), user.login);
+        ObjectMapper objectMapper = new ObjectMapper();
+        StringWriter stringWriter = new StringWriter();
+        try {
+            objectMapper.writeValue(stringWriter,out);
+            netMessager.sendMessage(stringWriter.toString());
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
     private class RequestInWorker extends AsyncTask<Void,String,Void> implements TypeRequestAnswer {
