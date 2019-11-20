@@ -55,7 +55,17 @@ public class Message implements Transfers, Comparable{
     public int compareTo(Object o) {
         if (o instanceof Message){
             Message message = (Message) o;
-            return this.date.compareTo(message.date);
+            if (this.date.compareTo(message.date)==1){
+                return 1;
+            }else if (this.date.compareTo(message.date)==-1){
+                return -1;
+            }else if (this.date.compareTo(message.date)==0){
+                if (this.idMessage>message.idMessage){
+                    return 1;
+                }else if (this.idMessage<message.idMessage){
+                    return -1;
+                }else return 0;
+            }
         }
         return 0;
     }

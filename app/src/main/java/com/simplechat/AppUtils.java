@@ -14,12 +14,15 @@ public class AppUtils {
     private static boolean alreadyConnect = false;
     private static String login = null;
     private static String password = null;
+    public static final String APP_PREFERENCES = "mysettings";
+    public static final String APP_PREFERENCES_LOGIN = "Nickname";
+    public static final String APP_PREFERENCES_PASSWORD = "Password";
     public static boolean startConnect(){
         URL url = null;
         try {
-            url = new URL("http://192.168.1.35:4444");
+            //url = new URL("http://192.168.1.35:4444");
             //url = new URL("http://127.0.0.1:4444");
-            //url = new URL("http://ecombine.ddns.net:4444");
+            url = new URL("http://ecombine.ddns.net:4444");
         } catch (MalformedURLException e) {
             e.printStackTrace();
             return false;

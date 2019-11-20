@@ -21,7 +21,7 @@
     <string name="deleteFriend">Удалить друга</string>
     <string name="enterFriendName">Введите никнейм друга</string>
     <string name="add">Добавить</string>
-    <string name="applicationSent">Заявка не найдена</string>
+    <string name="applicationSent">Заявка отправлена</string>
     <string name="accept">Принять</string>
     <string name="reject">Отклонить</string>
     <string name="friendRequest">Заявки в друзья</string>

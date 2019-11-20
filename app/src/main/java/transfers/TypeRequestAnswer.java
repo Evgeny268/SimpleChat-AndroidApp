@@ -15,6 +15,7 @@ public interface TypeRequestAnswer {
     String GET_FRIENDS = "GET_FRIENDS";
     String ADD_FRIEND = "ADD_FRIEND";
     String REQUEST_SENT = "REQUEST_SENT";
+    String NEW_REQUEST = "NEW_REQUEST";
     String GET_REQUEST_IN = "GET_REQUEST_IN";
     String GET_MESSAGES = "GET_MESSAGES";
     String GET_LAST_MESSAGES = "GET_LAST_MESSAGES";

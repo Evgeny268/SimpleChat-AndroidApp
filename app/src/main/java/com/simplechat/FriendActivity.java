@@ -132,6 +132,9 @@ public class FriendActivity extends AppCompatActivity implements FriendsRVAdapte
                     }else if (tra.request.equals(REQUEST_SENT)){
                         message = mHandler.obtainMessage(2);
                         message.sendToTarget();
+                    }else if (tra.request.equals(NEW_REQUEST)){
+                        message = mHandler.obtainMessage(2);
+                        message.sendToTarget();
                     }
                 }
             }

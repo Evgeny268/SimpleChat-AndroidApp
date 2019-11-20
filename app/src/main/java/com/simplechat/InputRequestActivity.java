@@ -117,6 +117,9 @@ public class InputRequestActivity extends AppCompatActivity implements InFriends
                     }else if (transferRequestAnswer.request.equals(ERROR)){
                         message = mHandler.obtainMessage(0);
                         message.sendToTarget();
+                    }else if (transferRequestAnswer.request.equals(NEW_REQUEST)){
+                        message = mHandler.obtainMessage(2);
+                        message.sendToTarget();
                     }
                 }
             }else {

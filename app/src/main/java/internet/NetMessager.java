@@ -32,6 +32,7 @@ public class NetMessager implements InetWorker.MessageNotify {
     public void sendMessage(String message){
         try{
             inetWorker.send(message);
+            Log.d("Inet","I SEND: "+message);
         }catch (Exception e){
             e.printStackTrace();
             ArrayList<String> list = new ArrayList<>();
@@ -53,12 +54,12 @@ public class NetMessager implements InetWorker.MessageNotify {
             Log.d("Inet","НЕ ОТПРАВЛЯЕМ СООБЩЕНИЕ");
             return;
         }
-        Log.d("Inet","ОТПРАВЛЯЕМ СООБЩЕНИЕ");
         waitMessageIncome = true;
         Thread thread = new Thread(new Mwaiter(waitAnswerTime));
         thread.start();
         try{
             inetWorker.send(message);
+            Log.d("Inet","I SEND: "+message);
         }catch (Exception e){
             e.printStackTrace();
             ArrayList<String> list = new ArrayList<>();
