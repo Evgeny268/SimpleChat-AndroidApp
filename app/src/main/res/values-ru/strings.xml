@@ -26,4 +26,8 @@
     <string name="reject">Отклонить</string>
     <string name="friendRequest">Заявки в друзья</string>
     <string name="friends">Друзья</string>
+    <string name="channel_name">Личные сообщения</string>
+    <string name="channel_description">Уведомления о новых входящих сообщениях</string>
+    <string name="no_internet">Плохое подключение к сети</string>
+    <string name="retry_again">Попробовать снова</string>
 </resources>

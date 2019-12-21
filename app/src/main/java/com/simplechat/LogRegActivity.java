@@ -17,7 +17,10 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 
 import java.io.IOException;
 import java.io.StringWriter;
+import java.math.BigInteger;
+import java.security.SecureRandom;
 import java.util.ArrayList;
+import java.util.Base64;
 
 import internet.AuthWorker;
 import internet.NetMessager;
@@ -32,11 +35,16 @@ public class LogRegActivity extends AppCompatActivity implements NetMessager.New
     public TextView tvLogin;
     public TextView tvPassword;
     public TextView tvMode;
+    public TextView licenseText;
     public Button btnRegLog;
     public CheckBox cbAcceptLicense;
     private static boolean lock = false;
     private NetMessager netMessager;
     private Handler mHandler;
+    private volatile String log;
+    private volatile String pas;
+    private String tokenLog;
+    private String tokenPas;
     //TODO Добавить проверку логина и пароля
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -46,6 +54,7 @@ public class LogRegActivity extends AppCompatActivity implements NetMessager.New
         tvPassword = findViewById(R.id.editTextPassword);
         tvMode = findViewById(R.id.textViewMode);
         btnRegLog = findViewById(R.id.buttonRegLog);
+        licenseText = findViewById(R.id.textViewAcceptLicense);
         cbAcceptLicense = findViewById(R.id.checkBoxLicense);
         mode = getIntent().getStringExtra("mode");
         if (mode.equals("signup")){
@@ -54,6 +63,9 @@ public class LogRegActivity extends AppCompatActivity implements NetMessager.New
         }else {
             tvMode.setText(R.string.authorization);
             btnRegLog.setText(R.string.log_in);
+            cbAcceptLicense.setEnabled(false);
+            cbAcceptLicense.setVisibility(View.INVISIBLE);
+            licenseText.setVisibility(View.INVISIBLE);
         }
         unlockAll();
         mHandler = new Handler(Looper.getMainLooper()) {
@@ -61,9 +73,50 @@ public class LogRegActivity extends AppCompatActivity implements NetMessager.New
             public void handleMessage(Message message) {
                 // This is where you do your work in the UI thread.
                 // Your worker tells you in the message what to do.
+                unlockAll();
                 if (message.obj!=null){
                     String text = (String)message.obj;
-                    Toast.makeText(LogRegActivity.this, text, Toast.LENGTH_SHORT).show();
+                    Transfers transfers = TransfersFactory.createTransfers(text);
+                    if (transfers != null){
+                        if (transfers instanceof TransferRequestAnswer){
+                            if (((TransferRequestAnswer) transfers).request.equals(AUTHORIZATION_DONE)){
+                                if (((TransferRequestAnswer) transfers).extra!=null){
+                                    AppUtils.saveTokenLogAndPass(LogRegActivity.this,((TransferRequestAnswer) transfers).extra,tokenPas);
+                                    log = "";
+                                    pas = "";
+                                    startActivity(new Intent(LogRegActivity.this,FriendActivity.class));
+                                }
+                            }else if (((TransferRequestAnswer) transfers).request.equals(REGISTRATION_DONE)){
+                                lockAll();
+                                log = tvLogin.getText().toString();
+                                pas = tvPassword.getText().toString();
+                                tokenPas = generateSafeToken(129);
+                                TransferRequestAnswer out = new TransferRequestAnswer(AUTHORIZATION,log, pas,tokenPas);
+                                try {
+                                    netMessager.sendMessage(AppUtils.objToJson(out),7000);
+                                } catch (IOException e) {
+                                    unlockAll();
+                                }
+                            }else if (((TransferRequestAnswer) transfers).request.equals(BAD_LOGIN)){
+                                Toast.makeText(LogRegActivity.this, getString(R.string.badLogin), Toast.LENGTH_SHORT).show();
+                            }else if (((TransferRequestAnswer) transfers).request.equals(BAD_PASSWORD)){
+                                Toast.makeText(LogRegActivity.this, getString(R.string.badPassword), Toast.LENGTH_SHORT).show();
+                            }else if (((TransferRequestAnswer) transfers).request.equals(USER_ALREADY_EXIST)){
+                                Toast.makeText(LogRegActivity.this, getString(R.string.userAlreadyExist), Toast.LENGTH_SHORT).show();
+                            }else if (((TransferRequestAnswer) transfers).request.equals(USER_NOT_EXIST)){
+                                Toast.makeText(LogRegActivity.this, getString(R.string.userNotExist), Toast.LENGTH_SHORT).show();
+                            }else if (((TransferRequestAnswer) transfers).request.equals(WRONG_PASSWORD)){
+                                Toast.makeText(LogRegActivity.this, getString(R.string.wrongPassword), Toast.LENGTH_SHORT).show();
+                            }else {
+                                Toast.makeText(LogRegActivity.this, getString(R.string.error), Toast.LENGTH_SHORT).show();
+                            }
+                        }
+                    }else {
+                        Toast.makeText(LogRegActivity.this, getString(R.string.error), Toast.LENGTH_SHORT).show();
+                    }
+
+                }else {
+                    Toast.makeText(LogRegActivity.this, getString(R.string.error), Toast.LENGTH_SHORT).show();
                 }
                 unlockAll();
             }
@@ -73,45 +126,48 @@ public class LogRegActivity extends AppCompatActivity implements NetMessager.New
     @Override
     public void newMessage(ArrayList<String> messages) {
         String out = "";
-        if (messages.size()>0){
-            String text = messages.get(0);
-            if (text.equals("TIMEOUT") || text.equals("ERROR")){
-                out = getString(R.string.serverNotRespond);
-            }else {
-                Transfers transfers = TransfersFactory.createTransfers(text);
-                if (transfers==null){
-                    out = getString(R.string.error);
-                }else {
-                    if (transfers instanceof TransferRequestAnswer){
-                        TransferRequestAnswer tra = (TransferRequestAnswer) transfers;
-                        if (tra.request.equals(AUTHORIZATION_DONE) || tra.request.equals(REGISTRATION_DONE)){
-                            startActivity(new Intent(LogRegActivity.this, FriendActivity.class));
-                        }else if (tra.request.equals(BAD_LOGIN)){
-                            out = getString(R.string.badLogin);
-                        }else if (tra.request.equals(BAD_PASSWORD)){
-                            out = getString(R.string.badPassword);
-                        }else if (tra.request.equals(USER_ALREADY_EXIST)){
-                            out = getString(R.string.userAlreadyExist);
-                        }else if (tra.request.equals(USER_NOT_EXIST)){
-                            out = getString(R.string.userNotExist);
-                        }else if (tra.request.equals(WRONG_PASSWORD)){
-                            out = getString(R.string.wrongPassword);
-                        }
-                    }else {
-                        out = getString(R.string.error);
-                    }
-                }
-            }
-        }else {
-            out = getString(R.string.error);
+        if (messages.size()>0) {
+            Message message = mHandler.obtainMessage(0, messages.get(0));
+            message.sendToTarget();
+//            String text = messages.get(0);
+//            if (text.equals("TIMEOUT") || text.equals("ERROR")){
+//                out = getString(R.string.serverNotRespond);
+//            }else {
+//                Transfers transfers = TransfersFactory.createTransfers(text);
+//                if (transfers==null){
+//                    out = getString(R.string.error);
+//                }else {
+//                    if (transfers instanceof TransferRequestAnswer){
+//                        TransferRequestAnswer tra = (TransferRequestAnswer) transfers;
+//                        if (tra.request.equals(AUTHORIZATION_DONE) || tra.request.equals(REGISTRATION_DONE)){
+//                            startActivity(new Intent(LogRegActivity.this, FriendActivity.class));
+//                        }else if (tra.request.equals(BAD_LOGIN)){
+//                            out = getString(R.string.badLogin);
+//                        }else if (tra.request.equals(BAD_PASSWORD)){
+//                            out = getString(R.string.badPassword);
+//                        }else if (tra.request.equals(USER_ALREADY_EXIST)){
+//                            out = getString(R.string.userAlreadyExist);
+//                        }else if (tra.request.equals(USER_NOT_EXIST)){
+//                            out = getString(R.string.userNotExist);
+//                        }else if (tra.request.equals(WRONG_PASSWORD)){
+//                            out = getString(R.string.wrongPassword);
+//                        }
+//                    }else {
+//                        out = getString(R.string.error);
+//                    }
+//                }
+//            }
+//        }else {
+//            out = getString(R.string.error);
+//        }
+//        Message message;
+//        if (!out.equals("")){
+//            message = mHandler.obtainMessage(0,out);
+//        }else {
+//            message = mHandler.obtainMessage(1);
+//        }
+//        message.sendToTarget();
         }
-        Message message;
-        if (!out.equals("")){
-            message = mHandler.obtainMessage(0,out);
-        }else {
-            message = mHandler.obtainMessage(1);
-        }
-        message.sendToTarget();
     }
 
     public void onlickAcceptLicense(View view) {
@@ -124,13 +180,14 @@ public class LogRegActivity extends AppCompatActivity implements NetMessager.New
 
     public void onClickSign(View view) {
         lockAll();
-        AppUtils.setLogin(tvLogin.getText().toString());
-        AppUtils.setPassword(tvPassword.getText().toString());
+        log = tvLogin.getText().toString();
+        pas = tvPassword.getText().toString();
         TransferRequestAnswer out;
         if (mode.equals("signup")){
-            out = new TransferRequestAnswer(REGISTRATION,AppUtils.getLogin(),AppUtils.getPassword());
+            out = new TransferRequestAnswer(REGISTRATION,log,pas);
         }else {
-            out = new TransferRequestAnswer(AUTHORIZATION,AppUtils.getLogin(), AppUtils.getPassword());
+            tokenPas = generateSafeToken(129);
+            out = new TransferRequestAnswer(AUTHORIZATION,log, pas,tokenPas);
         }
         ObjectMapper objectMapper = new ObjectMapper();
         StringWriter stringWriter = new StringWriter();
@@ -152,19 +209,25 @@ public class LogRegActivity extends AppCompatActivity implements NetMessager.New
     public void lockAll(){
         lock = true;
         btnRegLog.setEnabled(false);
-        cbAcceptLicense.setEnabled(false);
         tvLogin.setEnabled(false);
         tvPassword.setEnabled(false);
+        if (mode.equals("signup")){
+            cbAcceptLicense.setEnabled(false);
+        }
     }
 
     public void unlockAll(){
         lock = false;
-        if (cbAcceptLicense.isChecked()){
-            btnRegLog.setEnabled(true);
-        }
-        cbAcceptLicense.setEnabled(true);
         tvLogin.setEnabled(true);
         tvPassword.setEnabled(true);
+        if (mode.equals("signup")) {
+            if (cbAcceptLicense.isChecked()) {
+                btnRegLog.setEnabled(true);
+            }
+            cbAcceptLicense.setEnabled(true);
+        }else {
+            btnRegLog.setEnabled(true);
+        }
     }
 
     @Override
@@ -184,5 +247,15 @@ public class LogRegActivity extends AppCompatActivity implements NetMessager.New
     protected void onStop() {
         super.onStop();
         netMessager.stop();
+    }
+
+    public static String generateSafeToken(int size) {
+        SecureRandom random = new SecureRandom();
+        StringBuilder returnValue = new StringBuilder(size);
+        final String ALPHABET = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz";
+        for (int i = 0; i < size; i++) {
+            returnValue.append(ALPHABET.charAt(random.nextInt(ALPHABET.length())));
+        }
+        return new String(returnValue);
     }
 }

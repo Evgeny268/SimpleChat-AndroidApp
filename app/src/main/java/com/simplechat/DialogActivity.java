@@ -2,20 +2,19 @@ package com.simplechat;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.recyclerview.widget.DividerItemDecoration;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import android.content.Context;
+import android.content.Intent;
 import android.content.res.Configuration;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
 import android.os.Message;
 import android.view.View;
-import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageButton;
-import android.widget.TextView;
 import android.widget.Toast;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -24,7 +23,6 @@ import java.io.IOException;
 import java.io.StringWriter;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.Date;
 import java.util.TimeZone;
@@ -137,7 +135,6 @@ public class DialogActivity extends AppCompatActivity implements NetMessager.New
         super.onDestroy();
         netMessager.stop();
     }
-
     @Override
     public void newMessage(ArrayList<String> messages) {
         if (messages.size()>0){
@@ -145,7 +142,6 @@ public class DialogActivity extends AppCompatActivity implements NetMessager.New
             message.sendToTarget();
         }
     }
-
     @Override
     public void onConfigurationChanged(Configuration newConfig) {
         super.onConfigurationChanged(newConfig);
@@ -153,6 +149,10 @@ public class DialogActivity extends AppCompatActivity implements NetMessager.New
         if (newConfig.hardKeyboardHidden == Configuration.HARDKEYBOARDHIDDEN_NO) {
             rvMessages.scrollToPosition(messagesList.size() - 1);
         }
+    }
+
+    public static Intent newIntent(Context context){
+        return new Intent(context,DialogActivity.class);
     }
 
     private void addNewMessages(ArrayList<transfers.Message> list){

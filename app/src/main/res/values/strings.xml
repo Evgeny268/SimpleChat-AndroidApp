@@ -26,5 +26,9 @@
     <string name="reject">Reject</string>
     <string name="friendRequest">Friend request</string>
     <string name="friends">Friends</string>
+    <string name="channel_name">Personal messages</string>
+    <string name="channel_description">Notifications about new personal messages</string>
+    <string name="no_internet">Bad connection to network</string>
+    <string name="retry_again">Retry again</string>
 
 </resources>

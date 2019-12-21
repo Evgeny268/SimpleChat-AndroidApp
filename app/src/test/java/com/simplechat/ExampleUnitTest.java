@@ -6,6 +6,7 @@ import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
+import java.util.UUID;
 
 import internet.InetWorker;
 
@@ -39,5 +40,10 @@ public class ExampleUnitTest {
         InetWorker inetWorker = new InetWorker(uri);
         inetWorker.connect();
         //inetWorker.send("test");
+    }
+
+    @Test
+    public void generatorTest(){
+        System.out.println(LogRegActivity.generateSafeToken(128));
     }
 }

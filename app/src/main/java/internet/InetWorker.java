@@ -44,7 +44,7 @@ public class InetWorker extends WebSocketClient {
 
     @Override
     public void onClose(int code, String reason, boolean remote) {
-
+        Log.d("Inet","ЗАКРЫТИЕ СОЕДИНЕНИЯ");
     }
 
     @Override

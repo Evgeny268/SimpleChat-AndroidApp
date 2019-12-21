@@ -12,6 +12,7 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
 import android.os.Message;
+import android.util.Log;
 import android.view.ContextMenu;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -24,6 +25,9 @@ import android.widget.Toast;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
+import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.firebase.iid.FirebaseInstanceId;
+import com.google.firebase.iid.InstanceIdResult;
 
 import java.io.IOException;
 import java.io.StringWriter;
@@ -97,6 +101,21 @@ public class FriendActivity extends AppCompatActivity implements FriendsRVAdapte
         } catch (Exception e) {
             e.printStackTrace();
         }
+        FirebaseInstanceId.getInstance().getInstanceId().addOnSuccessListener(FriendActivity.this, new OnSuccessListener<InstanceIdResult>() {
+            @Override
+            public void onSuccess(InstanceIdResult instanceIdResult) {
+                Log.d("inet",instanceIdResult.getToken());
+                TransferRequestAnswer out = new TransferRequestAnswer(UPDATE_TOKEN,AppUtils.getLogin(),AppUtils.getPassword(),instanceIdResult.getToken());
+                ObjectMapper objectMapper = new ObjectMapper();
+                StringWriter stringWriter = new StringWriter();
+                try {
+                    objectMapper.writeValue(stringWriter,out);
+                    netMessager.sendMessage(stringWriter.toString());
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }
+        });
     }
 
     @Override

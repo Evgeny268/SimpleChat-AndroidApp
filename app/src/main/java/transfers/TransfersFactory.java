@@ -65,7 +65,16 @@ public class TransfersFactory {
                     e.printStackTrace();
                     return null;
                 }
-            }else {
+            }else if (node.get("type").asText().equals("."+TokenAccess.class.getSimpleName())){
+                try{
+                    TokenAccess tokenAccess = (TokenAccess) objectMapper.readValue(data,TokenAccess.class);
+                    return tokenAccess;
+                }catch (IOException e){
+                    e.printStackTrace();
+                    return null;
+                }
+            }
+            else {
                 return null;
             }
         }else{

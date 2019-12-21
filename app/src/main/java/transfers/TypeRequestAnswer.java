@@ -21,4 +21,5 @@ public interface TypeRequestAnswer {
     String GET_LAST_MESSAGES = "GET_LAST_MESSAGES";
     String NEW_MESSAGE = "NEW_MESSAGE";
     String REMOVE_FRIEND = "REMOVE_FRIEND";
+    String UPDATE_TOKEN = "UPDATE_TOKEN";
 }

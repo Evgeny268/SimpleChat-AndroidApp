@@ -6,7 +6,7 @@ import java.util.Date;
 import java.util.Objects;
 
 @JsonTypeInfo(use = JsonTypeInfo.Id.MINIMAL_CLASS, property ="type")
-public class Message implements Transfers, Comparable{
+public class Message implements Transfers, Comparable<Message>{
 
     public int iduser = 0;
     public int idMessage;
@@ -51,21 +51,20 @@ public class Message implements Transfers, Comparable{
         return Objects.hash(idMessage);
     }
 
+
     @Override
-    public int compareTo(Object o) {
-        if (o instanceof Message){
-            Message message = (Message) o;
-            if (this.date.compareTo(message.date)==1){
+    public int compareTo(Message o) {
+        Message message = o;
+        if (this.date.compareTo(message.date)==1){
+            return 1;
+        }else if (this.date.compareTo(message.date)==-1){
+            return -1;
+        }else if (this.date.compareTo(message.date)==0){
+            if (this.idMessage>message.idMessage){
                 return 1;
-            }else if (this.date.compareTo(message.date)==-1){
+            }else if (this.idMessage<message.idMessage){
                 return -1;
-            }else if (this.date.compareTo(message.date)==0){
-                if (this.idMessage>message.idMessage){
-                    return 1;
-                }else if (this.idMessage<message.idMessage){
-                    return -1;
-                }else return 0;
-            }
+            }else return 0;
         }
         return 0;
     }
